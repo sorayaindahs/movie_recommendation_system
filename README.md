@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-Kemudahan akses internet saat ini telah mengubah kebiasaan menonton acara TV dan film. Platform penyedia film seperti Netflix, HBO Max, dan Disney+ menawarkan fleksibilitas tinggi bagi pengguna untuk menikmati konten favorit kapan saja dan di berbagai perangkat. Setiap platform menyediakan berbagai film dengan jumlah yang sangat banyak. Pengguna platform yang ingin menenton film akan membutuhkan waktu yang cukup lama untuk memilih film dan film yang telah dipilih belum tentu memenuhi harapan atau keinginan penonton setelah menonton, sehingga waktu yang terbuang menjadi lebih banyak.
+Kemudahan akses internet saat ini telah mengubah kebiasaan menonton acara TV dan film. Platform penyedia film seperti Netflix, HBO Max, dan Disney+ menawarkan fleksibilitas tinggi bagi pengguna untuk menikmati film kapan saja dan di berbagai perangkat. Setiap platform menyediakan berbagai film dengan jumlah yang sangat banyak. Pengguna platform yang ingin menonton film akan membutuhkan waktu yang cukup lama untuk memilih film dan film yang telah dipilih belum tentu memenuhi harapan atau keinginan penonton setelah menonton, sehingga waktu yang terbuang menjadi lebih banyak.
 
 Banyaknya pilihan film yang tersedia membuat keberadaan sistem rekomendasi menjadi sangat krusial untuk membantu pengguna menemukan konten yang sesuai dengan preferensi mereka. Berdasarkan sisi bisnis, sistem rekomendasi juga berperan penting dalam meningkatkan durasi aktivitas pengguna di platform yang pada gilirannya dapat meningkatkan pendapatan platform tersebut. Oleh karena itu, sistem rekomendasi menjadi fitur yang wajib dimiliki oleh platform penyedia film.
 
@@ -344,4 +344,4 @@ Berikut evaluasi dari pembuatan model sistem rekomendasi film jika dikaitkan den
 
 *Bagaimana pengaruh penerapan sistem rekomendasi terhadap peningkatan durasi penggunaan platform penyedia film oleh pengguna?*
 
-- Meskipun tidak terjawab secara langsung, implementasi model sistem rekomendasi ini akan membantu pengguna menghemat waktu dan biaya dalam mencari film yang sesuai minat. Menurut sisi bisnis, platform akan lebih sering digunakan apabila pengguna merasa cocok dengan rekomendasi yang diberikan sesuai dengan preferensinya. Hal ini tentu saja meningkatkan durasi dan penilaian pengguna dalam menggunakan platform penyedia film.
+- Meskipun tidak terjawab secara langsung, implementasi model sistem rekomendasi ini akan membantu pengguna menghemat waktu dan biaya dalam mencari film yang sesuai minat. Menurut sisi bisnis, platform akan lebih sering digunakan apabila pengguna merasa cocok dengan rekomendasi yang diberikan sesuai dengan preferensinya. Hal ini tentu saja meningkatkan durasi dan satisfaction pengguna dalam menggunakan platform penyedia film.
