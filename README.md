@@ -167,11 +167,28 @@ Berdasarkan identifikasi yang telah dilakukan, diperoleh informasi bahwa:
 ##### **Kolom genres**
 Berdasarkan identifikasi yang telah dilakukan, diperoleh informasi bahwa:
 - Identifikasi menunjukkan 0 missing value.
-- Terdapat 24 genre, yaitu 
+- Terdapat 19 value genre dan 1 no genres listed
 
             ['(no genres listed)', 'Action', 'Adventure', 'Animation', 'Children', 'Comedy', 'Crime', 'Documentary', 'Drama', 'Fantasy', 'Film-Noir', 'Horror', 'IMAX', 'Musical', 'Mystery', 'Romance', 'Sci-Fi', 'Thriller', 'War', 'Western']
 
-- Terdapat 246 movie  yang tidak tertulis genre (no genres listed). Hal ini tidak perlu dilakukan penanganan, seperti missing value karena akan menghapus banyak informasi. Meskipun akan sedikit mengganggu pada sistem rekomendasi content based, hal ini tidak terlalu bermasalah untuk penerapan collaborative filtering.
+- Terdapat 246 movie  yang tidak tertulis genre (no genres listed).
+
+        | index  | movieId | title                                                       | genres            |
+        |--------|---------|--------------------------------------------------------------|-------------------|
+        | 16574  | 83773   | Away with Words (San tiao ren) (1999)                        | (no genres listed)|
+        | 16589  | 83829   | Scorpio Rising (1964)                                        | (no genres listed)|
+        | 16764  | 84768   | Glitterbug (1994)                                            | (no genres listed)|
+        | 17080  | 86493   | Age of the Earth, The (A Idade da Terra) (1980)              | (no genres listed)|
+        | 17243  | 87061   | Trails (Veredas) (1978)                                      | (no genres listed)|
+        | ...    | ...     | ...                                                          | ...               |
+        | 27216  | 131082  | Playground (2009)                                            | (no genres listed)|
+        | 27229  | 131108  | The Fearless Four (1997)                                     | (no genres listed)|
+        | 27258  | 131166  | WWII IN HD (2009)                                            | (no genres listed)|
+        | 27261  | 131172  | Closed Curtain (2013)                                        | (no genres listed)|
+        | 27276  | 131260  | Rentun Ruusu (2001)                                          | (no genres listed)|
+        246 rows × 3 columns
+
+Hal ini tidak perlu dilakukan penanganan, seperti missing value karena akan menghapus banyak informasi. Meskipun akan sedikit mengganggu pada sistem rekomendasi content based, hal ini tidak terlalu bermasalah untuk penerapan collaborative filtering.
 
 ##### **Kolom userId**
 Berdasarkan identifikasi yang telah dilakukan, diperoleh informasi bahwa tidak terdapat missing value pada kolom userId dan terdapat 7120 users yang memberi rating pada movie.
@@ -188,32 +205,37 @@ Berdasarkan identifikasi, tidak terdapat duplikasi data yang perlu ditangani.
 ## Data Preparation - Content Based Filtering
 Dataset yang digunakan dalam content based filtering adalah dataset genre saja tanpa digabung dengan rating. Sebelum membangun model, dataset genre_id yang telah siap dapat assign ke variabel data. Berikut contoh sampel:
 
-    |        | movieId | title                                      | genres         |
-    |--------|---------|--------------------------------------------|----------------|
-    | 1214   | 1242    | Glory (1989)                               | Drama|War      |
-    | 22279  | 107130  | Adventure in Space and Time, An (2013)     | Drama          |
-    | 20753  | 101592  | Bird of the Air, A (Loop, The) (2011)      | Drama|Romance  |
-    | 9761   | 31705   | Beautiful Boxer (2003)                     | Action|Drama   |
-    | 11291  | 47935   | Overlord (1975)                            | Drama|War      |
+    |       | movieId | title                                               | genres                           |
+    |-------|---------|-----------------------------------------------------|----------------------------------|
+    | 0     | 5754    | Scanners (1981)                                     | Horror|Sci-Fi|Thriller           |
+    | 1     | 14435   | Barren Lives (Vidas Secas) (1963)                   | Drama                            |
+    | 2     | 6911    | The Wedding Banquet (Xi yan) (1993)                 | Comedy|Drama|Romance             |
+    | 3     | 5953    | The Horse in the Gray Flannel Suit (1968)           | Children|Comedy                  |
+    | 4     | 15430   | The Ashes (Popioly) (1965)                          | Drama|War                        |
+
+## **Model Development: Content Based Filtering**
 
 ### **TF-IDF Vectorizer**
 Model sistem rekomendasi sederhana akan dibangun berdasarkan genre dari movie. Teknik TF-IDF Vectorizer akan digunakan pada sistem rekomendasi untuk menemukan representasi fitur penting dari setiap genre movie.
+
+Sebelum itu, perlu menyatukan value genres yang lebih dari 1 kata, yaitu Sci-Fi dan no genres listed.
+
 Tahapan yang dilakukan untuk TF-IDF Vectorizer adalah:
 - Inisialisasi TfidfVectorizer
 - Melakukan perhitungan idf pada data genres
 - Mapping array dari fitur index integer ke fitur nama
 
-            array(['action', 'adventure', 'animation', 'children', 'comedy', 'crime',
-            'documentary', 'drama', 'fantasy', 'fi', 'film', 'genres',
-            'horror', 'imax', 'listed', 'musical', 'mystery', 'no', 'noir',
-            'romance', 'sci', 'thriller', 'war', 'western'], dtype=object)
+        array(['action', 'adventure', 'animation', 'children', 'comedy', 'crime',
+               'documentary', 'drama', 'fantasy', 'film_noir', 'horror', 'imax',
+               'musical', 'mystery', 'no_genres_listed', 'romance', 'sci_fi',
+               'thriller', 'war', 'western'], dtype=object)
 
 - Melakukan fit lalu ditransformasikan ke bentuk matrix
 - Melihat ukuran matrix TF-IDF
 
-       (27278, 24)
+       (27278, 20)
 
-Matriks berukuran (27278, 24). Nilai 1048575 merupakan ukuran data dan 24 merupakan matriks genre.
+Matriks berukuran (27278, 20). Nilai 1048575 merupakan ukuran data dan 20 merupakan matriks genre.
 
 - Mengubah vektor tf-idf dalam bentuk matriks dengan fungsi todense() 
 Matriks tf-idf untuk beberapa judul movie (title) dan genre movie (genres).
@@ -233,26 +255,26 @@ Matriks tf-idf untuk beberapa judul movie (title) dan genre movie (genres).
                  0.        ]])
 - Membuat dataframe untuk melihat TF-IDF matrix dengan kolom berisi genre dan baris berisi title. Oleh karena beberapa movie tidak hanya memiliki 1 genre, tetapi beberapa genre yang relevan dengan movie tersebut, sehingga matrix tidak bernilai bulat 1.
 
-      | title                                                       | western | comedy   | ... | imax | fantasy  | crime  |
-      |-------------------------------------------------------------|---------|----------|-----|------|----------|--------|
-      | Bloodbath at the House of Death (1984)                      | 0.0     | 0.546038 | ... | 0.0  | 0.000000 | 0.0    |
-      | Tale of the Mummy (1998)                                    | 0.0     | 0.000000 | ... | 0.0  | 0.635364 | 0.0    |
-      | Irreconcilable Differences (1984)                           | 0.0     | 0.544541 | ... | 0.0  | 0.000000 | 0.0    |
-      | Stoned (2005)                                               | 0.0     | 0.000000 | ... | 0.0  | 0.000000 | 0.0    |
-      | Merry Widow, The (1934)                                     | 0.0     | 0.389629 | ... | 0.0  | 0.000000 | 0.0    |
-      | Fearful Symmetry: The Making of 'To Kill a Mockingbird'...  | 0.0     | 0.000000 | ... | 0.0  | 0.000000 | 0.0    |
-      | Octane (2003)                                               | 0.0     | 0.000000 | ... | 0.0  | 0.000000 | 0.0    |
-      | Amen. (2002)                                                | 0.0     | 0.000000 | ... | 0.0  | 0.000000 | 0.0    |
-      | Best Exotic Marigold Hotel, The (2011)                      | 0.0     | 0.786067 | ... | 0.0  | 0.000000 | 0.0    |
-      | Saving Lincoln (2013)                                       | 0.0     | 0.000000 | ... | 0.0  | 0.000000 | 0.0    |
-      10 rows × 21 columns
+        | title                                                                                             | crime    | thriller | drama    | horror   | no_genres_listed | comedy   | imax | war      | western | adventure | action | musical | children | romance  | fantasy | animation | mystery  | sci_fi  | documentary | film_noir |
+        |---------------------------------------------------------------------------------------------------|----------|----------|----------|----------|------------------|----------|------|----------|---------|-----------|--------|---------|----------|----------|---------|-----------|----------|---------|-------------|-----------|
+        | Brothers Grimm, The (2005)                                                                        | 0.000000 | 0.455265 | 0.000000 | 0.529657 | 0.0              | 0.345221 | 0.0  | 0.000000 | 0.0     | 0.000000  | 0.0    | 0.0     | 0.0      | 0.000000 | 0.626913 | 0.0       | 0.000000 | 0.0     | 0.000000    | 0.0       |
+        | Hangover Part II, The (2011)                                                                      | 0.000000 | 0.000000 | 0.000000 | 0.000000 | 0.0              | 1.000000 | 0.0  | 0.000000 | 0.0     | 0.000000  | 0.0    | 0.0     | 0.0      | 0.000000 | 0.000000 | 0.0       | 0.000000 | 0.0     | 0.000000    | 0.0       |
+        | San Pietro (1945)                                                                                 | 0.000000 | 0.000000 | 0.000000 | 0.000000 | 0.0              | 0.000000 | 0.0  | 0.771785 | 0.0     | 0.000000  | 0.0    | 0.0     | 0.0      | 0.000000 | 0.000000 | 0.0       | 0.000000 | 0.0     | 0.635884    | 0.0       |
+        | Région centrale, La (1971)                                                                        | 0.000000 | 0.000000 | 1.000000 | 0.000000 | 0.0              | 0.000000 | 0.0  | 0.000000 | 0.0     | 0.000000  | 0.0    | 0.0     | 0.0      | 0.000000 | 0.000000 | 0.0       | 0.000000 | 0.0     | 0.000000    | 0.0       |
+        | Tiger and the Snow, The (La tigre e la neve) (2005)                                               | 0.000000 | 0.000000 | 0.298178 | 0.000000 | 0.0              | 0.379181 | 0.0  | 0.717719 | 0.0     | 0.000000  | 0.0    | 0.0     | 0.0      | 0.502185 | 0.000000 | 0.0       | 0.000000 | 0.0     | 0.000000    | 0.0       |
+        | October Baby (2011)                                                                                | 0.000000 | 0.000000 | 1.000000 | 0.000000 | 0.0              | 0.000000 | 0.0  | 0.000000 | 0.0     | 0.000000  | 0.0    | 0.0     | 0.0      | 0.000000 | 0.000000 | 0.0       | 0.000000 | 0.0     | 0.000000    | 0.0       |
+        | Dream Lover (1994)                                                                                 | 0.000000 | 0.000000 | 0.403343 | 0.000000 | 0.0              | 0.000000 | 0.0  | 0.000000 | 0.0     | 0.000000  | 0.0    | 0.0     | 0.0      | 0.000000 | 0.000000 | 0.0       | 0.915049 | 0.0     | 0.000000    | 0.0       |
+        | Bad Santa (2003)                                                                                   | 0.828591 | 0.000000 | 0.000000 | 0.000000 | 0.0              | 0.559854 | 0.0  | 0.000000 | 0.0     | 0.000000  | 0.0    | 0.0     | 0.0      | 0.000000 | 0.000000 | 0.0       | 0.000000 | 0.0     | 0.000000    | 0.0       |
+        | Americano (2011)                                                                                   | 0.000000 | 0.000000 | 1.000000 | 0.000000 | 0.0              | 0.000000 | 0.0  | 0.000000 | 0.0     | 0.000000  | 0.0    | 0.0     | 0.0      | 0.000000 | 0.000000 | 0.0       | 0.000000 | 0.0     | 0.000000    | 0.0       |
+        | Snug as a Bug (U Pana Boga za piecem) (1998)                                                      | 0.000000 | 0.000000 | 0.618142 | 0.000000 | 0.0              | 0.786067 | 0.0  | 0.000000 | 0.0     | 0.000000  | 0.0    | 0.0     | 0.0      | 0.000000 | 0.000000 | 0.0       | 0.000000 | 0.0     | 0.000000    | 0.0       |
+
 
 ### **Cosine Similarity**
 Pada tahap sebelumnya, telah berhasil mengidentifikasi korelasi antara judul movie dengan genrenya. Selanjutnya, perlu menghitung derajat kesamaan (similarity degree) antar movie dengan teknik cosine similarity. Pembatasan data dilakukan agar proses dapat berjalan. Berikut matriks kesamaan setiap movie dalam 5 sampel kolom (axis = 1) dan 10 sampel baris (axis=0).
 
-![image](https://github.com/user-attachments/assets/b1605b2a-b34e-43c5-ad54-a29fd10bcfe4)
+![image](https://github.com/user-attachments/assets/d09ce7e5-1dbe-4a3d-a487-76c3d83df1b1)
 
-## **Mendapatkan Rekomendasi - Content Based Filtering**
+### **Mendapatkan Rekomendasi - Content Based Filtering**
 Menggunakan argpartition, sejumlah nilai k tertinggi dapat diambil dari similarity data (dalam kasus ini: dataframe cosine_sim_df). Kemudian,  data diambil dari bobot (tingkat kesamaan) tertinggi ke terendah. Data ini dimasukkan ke dalam variabel closest. Berikutnya, title yang dicari perlu dihapus agar tidak muncul dalam daftar rekomendasi.
 Penjelasan parameter yang digunakan pada model, antara lain:
 - title: berfungsi jadi dasar pencarian untuk rekomendasi.
@@ -264,14 +286,14 @@ Contoh hasil rekomendasi content based filtering:
 ```
 movie_recommendations('Toy Story (1995)', items=data[['title', 'genres']], k=5)
 ```
-    | title                                 | genres                                        |
-    |---------------------------------------|-----------------------------------------------|
-    | Toy Story 2 (1999)                    | Adventure|Animation|Children|Comedy|Fantasy   |
-    | Antz (1998)                           | Adventure|Animation|Children|Comedy|Fantasy   |
-    | The Magic Crystal (2011)             | Adventure|Animation|Children|Comedy|Fantasy   |
-    | Toy Story Toons: Small Fry (2011)     | Adventure|Animation|Children|Comedy|Fantasy   |
-    | Monsters, Inc. (2001)                | Adventure|Animation|Children|Comedy|Fantasy   |
-    
+    | index | title                                  | genres                                          |
+    |-------|----------------------------------------|------------------------------------------------ |
+    | 0     | Wild, The (2006)                       | Adventure|Animation|Children|Comedy|Fantasy     |
+    | 1     | Antz (1998)                            | Adventure|Animation|Children|Comedy|Fantasy     |
+    | 2     | The Magic Crystal (2011)               | Adventure|Animation|Children|Comedy|Fantasy     |
+    | 3     | Emperor's New Groove, The (2000)       | Adventure|Animation|Children|Comedy|Fantasy     |
+    | 4     | Toy Story Toons: Small Fry (2011)      | Adventure|Animation|Children|Comedy|Fantasy     |
+
 Sistem memberikan 5 rekomendasi film yang memiliki kemiripan dengan film referensi tersebut berdasarkan genre menggunakan pendekatan content-based filtering. Contoh di atas, sistem akan merekomendasikan kepada pengguna  5 film dengan kemiripan genre dari preferensinya, yaitu Toy Story (1995).
 
 **Kelebihan content based filtering berdasarkan cara kerja:**
@@ -316,6 +338,8 @@ Encoding merupakan proses menyandikan fitur user dan placeID ke dalam indeks int
 - Dataset diacak dengan parameter frac=1 yang berarti 100% dari baris data akan diambil secara acak. random_state=42 agar hasil pengacakan konsisten (angka 42 tidak terlalu berarti)
 - Data train dan validasi dibagi dengan komposisi 80:20. Sebelum itu, perlu memetakan (mapping) data user dan movie menjadi satu value terlebih dahulu. Lalu, membuat rating dalam skala 0 sampai 1 agar mudah dalam melakukan proses training.
 
+## **Model Development: Collaborative Filtering**
+
 ### **Proses Training**
 Pada tahap training, model menghitung skor kecocokan antara pengguna dan movie dengan teknik embedding. Pertama, proses embedding terhadap data user dan movie. Selanjutnya, operasi perkalian dot product antara embedding user dan movie. Selain itu, dapat juga menambahkan bias untuk setiap user dan movie. Skor kecocokan ditetapkan dalam skala [0,1] dengan fungsi aktivasi sigmoid.
 
@@ -336,17 +360,9 @@ Setelah itu, dilakukan proses training dengan parameter berikut.
 - batch_size=256 artinya 256 sampeliterasi yang diproses sebelum perubahan weight.
 - epoch = 30 artinya perulangan penuh terhadap seluruh dataset pelatihan sebanyak 30 kali.
 
-### **Visualisasi Metrik**
 
-![image](https://github.com/user-attachments/assets/38335f47-d73a-48ed-99fb-6f99221094d4)
 
-Berdasarkan visualisasi metrik, terlihat bahwa:
-- Baik pada data train maupun test, RMSE menurun secara stabil seiring bertambahnya epoch.
-- Garis test dan train berdekatan hingga akhir epoch, sehingga tidak mengindikasikan overfitting.
-
-Dapat disimpulkan bahwa model menunjukkan performa yang baik, stabil, dan tidak overfitting.
-
-## **Mendapatkan Rekomendasi Movie**
+### **Mendapatkan Rekomendasi**
 Untuk mendapatkan rekomendasi movie, sampel user awalnya acak dan definisikan variabel movie_not_visited yang merupakan daftar movie yang belum pernah dikunjungi oleh pengguna.
 
 Sebelumnya, pengguna telah memberi rating pada beberapa movie yang telah ditonton. Rating ini digunakan untuk membuat rekomendasi movie lain yang mungkin cocok dan belum pernah ditonton untuk pengguna.
@@ -363,34 +379,35 @@ Penjelasan singkat terkait parameter dan fungsi yang digunakan untuk mengambil r
 
 Contoh hasil rekomendasi collaborative filtering:
 
-      Showing recommendations for users: 2177
-      ===========================
-      movie with high ratings from user
-      --------------------------------
-      Bullets Over Broadway (1994) : Comedy
-      Casablanca (1942) : Drama|Romance
-      Taxi Driver (1976) : Crime|Drama|Thriller
-      Maltese Falcon, The (1941) : Film-Noir|Mystery
-      Three Colors: Red (Trois couleurs: Rouge) (1994) : Drama
-      --------------------------------
-      Top 10 movie recommendation
-      --------------------------------
-      Usual Suspects, The (1995) : Crime|Mystery|Thriller
-      Shawshank Redemption, The (1994) : Crime|Drama
-      One Flew Over the Cuckoo's Nest (1975) : Drama
-      Fight Club (1999) : Action|Crime|Drama|Thriller
-      Godfather, The (1972) : Crime|Drama
-      Godfather: Part II, The (1974) : Crime|Drama
-      Schindler's List (1993) : Drama|War
-      City of God (Cidade de Deus) (2002) : Action|Adventure|Crime|Drama|Thriller
-      To Kill a Mockingbird (1962) : Drama
-      12 Angry Men (1957) : Drama
+    Showing recommendations for users: 3057
+    ===========================
+    movie with high ratings from user
+    --------------------------------
+    Eternal Sunshine of the Spotless Mind (2004) : Drama|Romance|Sci_Fi
+    Crash (2004) : Crime|Drama
+    District 9 (2009) : Mystery|Sci_Fi|Thriller
+    Sin City (2005) : Action|Crime|Film_Noir|Mystery|Thriller
+    Big Fish (2003) : Drama|Fantasy|Romance
+    --------------------------------
+    Top 10 movie recommendation
+    --------------------------------
+    North by Northwest (1959) : Action|Adventure|Mystery|Romance|Thriller
+    Rear Window (1954) : Mystery|Thriller
+    Schindler's List (1993) : Drama|War
+    Spirited Away (Sen to Chihiro no kamikakushi) (2001) : Adventure|Animation|Fantasy
+    City of God (Cidade de Deus) (2002) : Action|Adventure|Crime|Drama|Thriller
+    To Kill a Mockingbird (1962) : Drama
+    12 Angry Men (1957) : Drama
+    M (1931) : Crime|Film_Noir|Thriller
+    Band of Brothers (2001) : Action|Drama|War
+    Treasure of the Sierra Madre, The (1948) : Action|Adventure|Drama|Western
 
-Penjelasan hasil rekomendasi: 
-Showing recommendations for users: 2177
+Penjelasan hasil rekomendasi:
+
+Showing recommendations for users: 3057
 - User ini adalah pengguna aktif dalam sistem rekomendasi.
-- Rekomendasi dilakukan berdasarkan pola historis rating dan prediksi model terhadap film yang belum ditonton.
-- Genre dominan yang yang direkomendasikan untuk pengguna 2177: Drama, Crime, Mystery, dan Thriller.
+- Sistem melihat pengguna-pengguna lain yang memberikan rating tinggi untuk movie yang sama seperti pengguna 3057.
+- Rekomendasi dilakukan berdasarkan pola historis rating dan prediksi model terhadap movie yang belum ditonton.
 
 **Kelebihan Collaborative filtering berdasarkan cara kerja:**
 - Tidak bergantung atribut item, seperti genre.
@@ -402,6 +419,61 @@ Kelemahan Collaborative filtering berdasarkan cara kerja:
 - Bisa dimanipulasi melalui fake ratings atau spam users, sehingga sering tidak akurat.
 
 ## **Evaluasi**
+### **Evaluasi Model Content Based Filtering: precision@k**
+Evaluasi model content based filtering dapat dilihat dari prcision@k dengan k=5. 
+```
+# Normalisasi
+recommended_titles = [t.lower().strip() for t in movie_recommendations(
+    'Toy Story (1995)',
+    similarity_data=cosine_sim_df,
+    items=data[['title', 'genres']],
+    k=5
+)['title'].tolist()]
+
+ground_truth = [t.lower().strip() for t in [
+    'Wild, The (2006)',
+    'Antz (1998)',
+    'The Magic Crystal (2011)',
+    "Emperor's New Groove, The (2000)",
+    'Toy Story Toons: Small Fry (2011)'
+]]
+
+# Precision@5
+precision_score = precision_at_k(recommended_titles, ground_truth, k=5)
+print(f'Precision@5: {precision_score:.2f}')
+```
+    Precision@5: 1.00
+
+Berikut penjelasan terkait parameter yang digunakan untuk membangun fungsinya.
+- recommended: daftar judul film yang direkomendasikan oleh model.
+- ground_truth: daftar film yang dianggap sebagai jawaban yang relevan.
+- k: jumlah item teratas yang ingin dievaluasi, misal k=5 (Precision@5).
+- recommended_top_k = recommended[:k]: Mengambil hanya K film teratas dari hasil rekomendasi.
+
+precision@5: 1.00 (atau 100%) menunjukkan bahwa kelima movie memang direkomendasikan karena sesuai dengan preferensi pengguna berdasarkan genre.
+
+### **Evaluasi Model Collaborative Filtering: RMSE**
+
+![image](https://github.com/user-attachments/assets/e9013f02-d626-49c5-a815-e9e902da217a)
+
+**Identifikasi RMSE**
+
+Training RMSE (biru)
+- Epoch 1: RMSE = 0.2766
+- Epoch 15: RMSE = 0.1968
+- Epoch 30: RMSE = 0.1912
+
+Hal ini menunjukkan bahwa nilai RMSE data training turun secara konsisten seiring bertambahnya epoch. Artinya, model berhasil belajar dari data training secara bertahap.
+
+Validation RMSE (oranye)
+
+- Epoch 1: val_RMSE = 0.2282
+- Epoch 15: val_RMSE = 0.1982
+- Epoch 30: val_RMSE = 0.1936
+
+RMSE pada data validasi juga turun stabil dan selisihnya kecil terhadap RMSE training. Menunjukkan generalization model sangat baik (tidak overfitting)
+
+### **Kaitan dengan problem statements**
 Berikut evaluasi dari pembuatan model sistem rekomendasi film jika dikaitkan dengan problem statements.
 
 *Bagaimana sistem rekomendasi dapat membantu pengguna dalam menemukan film yang sesuai dengan preferensi mereka secara efisien?*
