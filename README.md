@@ -213,7 +213,6 @@ Dataset yang digunakan dalam content based filtering adalah dataset genre saja t
     | 3     | 5953    | The Horse in the Gray Flannel Suit (1968)           | Children|Comedy                  |
     | 4     | 15430   | The Ashes (Popioly) (1965)                          | Drama|War                        |
 
-## **Model Development: Content Based Filtering**
 
 ### **TF-IDF Vectorizer**
 Model sistem rekomendasi sederhana akan dibangun berdasarkan genre dari movie. Teknik TF-IDF Vectorizer akan digunakan pada sistem rekomendasi untuk menemukan representasi fitur penting dari setiap genre movie.
@@ -274,7 +273,7 @@ Pada tahap sebelumnya, telah berhasil mengidentifikasi korelasi antara judul mov
 
 ![image](https://github.com/user-attachments/assets/d09ce7e5-1dbe-4a3d-a487-76c3d83df1b1)
 
-### **Mendapatkan Rekomendasi - Content Based Filtering**
+## **Model Development: Content Based Filtering**
 Menggunakan argpartition, sejumlah nilai k tertinggi dapat diambil dari similarity data (dalam kasus ini: dataframe cosine_sim_df). Kemudian,  data diambil dari bobot (tingkat kesamaan) tertinggi ke terendah. Data ini dimasukkan ke dalam variabel closest. Berikutnya, title yang dicari perlu dihapus agar tidak muncul dalam daftar rekomendasi.
 Penjelasan parameter yang digunakan pada model, antara lain:
 - title: berfungsi jadi dasar pencarian untuk rekomendasi.
@@ -339,7 +338,6 @@ Encoding merupakan proses menyandikan fitur user dan placeID ke dalam indeks int
 - Data train dan validasi dibagi dengan komposisi 80:20. Sebelum itu, perlu memetakan (mapping) data user dan movie menjadi satu value terlebih dahulu. Lalu, membuat rating dalam skala 0 sampai 1 agar mudah dalam melakukan proses training.
 
 ## **Model Development: Collaborative Filtering**
-
 ### **Proses Training**
 Pada tahap training, model menghitung skor kecocokan antara pengguna dan movie dengan teknik embedding. Pertama, proses embedding terhadap data user dan movie. Selanjutnya, operasi perkalian dot product antara embedding user dan movie. Selain itu, dapat juga menambahkan bias untuk setiap user dan movie. Skor kecocokan ditetapkan dalam skala [0,1] dengan fungsi aktivasi sigmoid.
 
@@ -359,8 +357,6 @@ Setelah itu, dilakukan proses training dengan parameter berikut.
 - y_train: Label target
 - batch_size=256 artinya 256 sampeliterasi yang diproses sebelum perubahan weight.
 - epoch = 30 artinya perulangan penuh terhadap seluruh dataset pelatihan sebanyak 30 kali.
-
-
 
 ### **Mendapatkan Rekomendasi**
 Untuk mendapatkan rekomendasi movie, sampel user awalnya acak dan definisikan variabel movie_not_visited yang merupakan daftar movie yang belum pernah dikunjungi oleh pengguna.
